@@ -9,7 +9,7 @@ import java.util.Properties;
 
 public class Registration {
 
-    public static void registerAgent(String uEmail, String firstName, String lastName, String jobTitle, String agency, String phoneNum) {
+    public static void registerAgent(String uEmail, String firstName, String lastName, String jobTitle, String agency, String phoneNum, String[] address) {
         Properties props = new Properties();
         try {
             props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
@@ -28,12 +28,17 @@ public class Registration {
         String insertAgent = "INSERT INTO agent (email, job_title, agency, phone_number) "
                             + "VALUES ('" + uEmail + "', '" + jobTitle + "', '" + agency + "', " + phoneNum + ");";
         //System.out.println(insertAgent);
+        String insertAddress = "INSERT INTO user_address (\"number\", \"state\", zip_code, city, street, email, first_name, last_name) "
+                            + "VALUES (" + address[0] + ", '" + address[1] + "', '" + address[2] + "', '" + address[3] + "', '" 
+                            + address[4] + "', '" + uEmail + "', '" + firstName + "', '" + lastName + "');";
+        //System.out.println(insertAddress);
 
         try (Connection conn = DriverManager.getConnection(url, user, password); Statement stmt = conn.createStatement();) {
             conn.setAutoCommit(false);
             //System.out.println("Connected to the database!");
             stmt.executeUpdate(insertUser);
             stmt.executeUpdate(insertAgent);
+            stmt.executeUpdate(insertAddress);
             conn.commit();
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -41,7 +46,7 @@ public class Registration {
         System.out.println("Agent record created successfully.");
     }
 
-    public static void registerRenter(String uEmail, String firstName, String lastName, String agentID, String agentEmail, String size, String maxRoom, String budget, String date) {
+    public static void registerRenter(String uEmail, String firstName, String lastName, String agentID, String agentEmail, String size, String maxRoom, String budget, String date, String [] address) {
         Properties props = new Properties();
         try {
             props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
@@ -60,12 +65,17 @@ public class Registration {
         String userRenter = "INSERT INTO prospective_renter (email, agent_id, agent_email, desired_size, max_room_number, budget, desired_movein_date) "
                         + "VALUES ('" + uEmail + "', " + agentID + ", '" + agentEmail + "', " + size + ", " + maxRoom + ", " + budget + ", '" + date + "');";
         //System.out.println(userRenter);
+        String insertAddress = "INSERT INTO user_address (\"number\", \"state\", zip_code, city, street, email, first_name, last_name) "
+                            + "VALUES (" + address[0] + ", '" + address[1] + "', '" + address[2] + "', '" + address[3] + "', '" 
+                            + address[4] + "', '" + uEmail + "', '" + firstName + "', '" + lastName + "');";
+        //System.out.println(insertAddress);
 
         try (Connection conn = DriverManager.getConnection(url, user, password); Statement stmt = conn.createStatement();) {
             conn.setAutoCommit(false);
             //System.out.println("Connected to the database!");
             stmt.executeUpdate(insertUser);
             stmt.executeUpdate(userRenter);
+            stmt.executeUpdate(insertAddress);
             conn.commit();
         } catch (Exception e) {
             System.out.println(e.getMessage());
