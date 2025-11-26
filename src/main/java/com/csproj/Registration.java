@@ -8,8 +8,8 @@ import java.sql.DriverManager;
 import java.util.Properties;
 
 public class Registration {
-    
-    public static void registerUser(String uEmail, String firstName, String lastName) {
+
+    public static void registerAgent(String uEmail, String firstName, String lastName, String jobTitle, String agency, String phoneNum) {
         Properties props = new Properties();
         try {
             props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
@@ -22,42 +22,17 @@ public class Registration {
         String user = props.getProperty("db.user");
         String password = props.getProperty("db.password");
 
-        // SQL insert query for inserting data
         String insertUser = "INSERT INTO \"user\" (email, first_name, last_name) " 
                             + "VALUES ('" + uEmail + "', '" + firstName + "', '" + lastName + "');";
-        System.out.println(insertUser);
-         
-        // Connect to the db and insert the user data
+        //System.out.println(insertUser);
+        String insertAgent = "INSERT INTO agent (email, job_title, agency, phone_number) "
+                            + "VALUES ('" + uEmail + "', '" + jobTitle + "', '" + agency + "', " + phoneNum + ");";
+        //System.out.println(insertAgent);
+
         try (Connection conn = DriverManager.getConnection(url, user, password); Statement stmt = conn.createStatement();) {
             conn.setAutoCommit(false);
             //System.out.println("Connected to the database!");
             stmt.executeUpdate(insertUser);
-            conn.commit();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        System.out.println("User record created successfully.");
-    }
-
-    public static void registerAgent(String uEmail, String jobTitle, String agency, String phoneNum) {
-        Properties props = new Properties();
-        try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String url = props.getProperty("db.url");
-        String user = props.getProperty("db.user");
-        String password = props.getProperty("db.password");
-
-        String insertAgent = "INSERT INTO agent (email, job_title, agency, phone_number) "
-                            + "VALUES ('" + uEmail + "', '" + jobTitle + "', '" + agency + "', " + phoneNum + ");";
-        System.out.println(insertAgent);
-        try (Connection conn = DriverManager.getConnection(url, user, password); Statement stmt = conn.createStatement();) {
-            conn.setAutoCommit(false);
-            //System.out.println("Connected to the database!");
             stmt.executeUpdate(insertAgent);
             conn.commit();
         } catch (Exception e) {
@@ -66,7 +41,7 @@ public class Registration {
         System.out.println("Agent record created successfully.");
     }
 
-    public static void registerRenter(String uEmail, String agentID, String agentEmail, String size, String maxRoom, String budget, String date) {
+    public static void registerRenter(String uEmail, String firstName, String lastName, String agentID, String agentEmail, String size, String maxRoom, String budget, String date) {
         Properties props = new Properties();
         try {
             props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
@@ -79,16 +54,21 @@ public class Registration {
         String user = props.getProperty("db.user");
         String password = props.getProperty("db.password");
 
+        String insertUser = "INSERT INTO \"user\" (email, first_name, last_name) " 
+                            + "VALUES ('" + uEmail + "', '" + firstName + "', '" + lastName + "');";
+        //System.out.println(insertUser);
         String userRenter = "INSERT INTO prospective_renter (email, agent_id, agent_email, desired_size, max_room_number, budget, desired_movein_date) "
                         + "VALUES ('" + uEmail + "', " + agentID + ", '" + agentEmail + "', " + size + ", " + maxRoom + ", " + budget + ", '" + date + "');";
+        //System.out.println(userRenter);
 
         try (Connection conn = DriverManager.getConnection(url, user, password); Statement stmt = conn.createStatement();) {
             conn.setAutoCommit(false);
             //System.out.println("Connected to the database!");
+            stmt.executeUpdate(insertUser);
             stmt.executeUpdate(userRenter);
             conn.commit();
         } catch (Exception e) {
-            System.out.println("Failed to make connection!");
+            System.out.println(e.getMessage());
         }
         System.out.println("Renter update successful.");
     }
