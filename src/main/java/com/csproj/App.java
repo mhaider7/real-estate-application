@@ -1,5 +1,6 @@
 package com.csproj;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class App 
 {
@@ -24,8 +25,10 @@ public class App
                     System.out.print("Enter email: "); System.out.flush(); String email = scanner.nextLine();
                     System.out.print("Enter job title: "); System.out.flush(); String jobTitle = scanner.nextLine();
                     System.out.print("Enter agency name: "); System.out.flush(); String agency = scanner.nextLine();
-                    System.out.print("Enter phone number: "); System.out.flush(); String phoneNum = scanner.nextLine(); 
-                    Registration.registerAgent(email, firstName, lastName, jobTitle, agency, phoneNum);
+                    System.out.print("Enter phone number: "); System.out.flush(); String phoneNum = scanner.nextLine();
+                    System.out.print("Enter your address in the format (building number, state (Ex: IL), zip code, city, street): "); System.out.flush(); String addr = scanner.nextLine();
+                    String[] address = addr.split(",\\s+");
+                    Registration.registerAgent(email, firstName, lastName, jobTitle, agency, phoneNum, address);
                 } else if (user.equals("R") || user.equals("r")) {
                     // Call the class that will prompt the renter account
                     System.out.print("Enter your first name: "); System.out.flush(); String firstName = scanner.next(); scanner.nextLine();
@@ -38,8 +41,10 @@ public class App
                     System.out.print("Enter your desired property size: "); System.out.flush(); String size = scanner.nextLine();
                     System.out.print("Enter your desired maximum room number: "); System.out.flush(); String maxRoom = scanner.nextLine();
                     System.out.print("Enter your budget: "); System.out.flush(); String budget = scanner.nextLine();
-                    System.out.print("Enter your desired move in date (YEAR-MONTH-DAY format): "); System.out.flush(); String date = scanner.nextLine();
-                    Registration.registerRenter(email, firstName, lastName, agentID, agentEmail, size, maxRoom, budget, date);
+                    System.out.print("Enter your desired move in date in the form YEAR-MONTH-DAY: "); System.out.flush(); String date = scanner.nextLine();
+                    System.out.print("Enter your address in the format (building number, state (Ex: IL), zip code, city, street): "); System.out.flush(); String addr = scanner.nextLine();
+                    String[] address = addr.split(",\\s+");
+                    Registration.registerRenter(email, firstName, lastName, agentID, agentEmail, size, maxRoom, budget, date, address);
                 }
             } else if (input == 2) {
                 System.out.println();
