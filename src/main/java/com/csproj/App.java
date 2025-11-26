@@ -50,21 +50,54 @@ public class App
                 if (response.equals("A") || response.equals("a")) {
                     System.out.println("\n - To add an address, enter (1)");
                     System.out.println(" - To modify an address, enter (2)");
-                    System.out.println(" - To delete an address, enter (3)");
+                    System.out.print(" - To delete an address, enter (3)\n: ");
                     Integer selection = scanner.nextInt(); scanner.nextLine(); // Check in case there is a problem here
                     if (selection == 1) {
-                        PaymentAddressInfo.add();
+                        System.out.print("\nEnter your email: "); System.out.flush(); String email = scanner.nextLine();
+                        // Check if email exists??
+                        System.out.print("\nEnter your address in the format (building number, state (Ex: IL), zip code, city, street): "); System.out.flush(); String addr = scanner.nextLine();
+                        String[] address = addr.split(",\\s+");
+                        PaymentAddressInfo.addAddress(email, address);
                     } else if (selection == 2) {
-                        PaymentAddressInfo.modify();
+                        System.out.print("\nEnter your email: "); System.out.flush(); String email = scanner.nextLine();
+                        // Check if email exists
+                        if (PaymentAddressInfo.showRenterAddresses(email) == false) {
+                            System.out.println("\nNo addresses to delete.\n");
+                            continue;
+                        }
+                        System.out.print("\nEnter the address you want to update in the format (building number, state (Ex: IL), zip code, city, street): "); System.out.flush(); String addr = scanner.nextLine();
+                        String[] address = addr.split(",\\s+");
+                        System.out.print("Enter your updated address in the format (building number, state (Ex: IL), zip code, city, street): "); System.out.flush(); String updtAddr = scanner.nextLine();
+                        String[] updateAddress = updtAddr.split(",\\s+");
+                        PaymentAddressInfo.modifyAddress(email, address, updateAddress);
                     } else if (selection == 3) {
-                        PaymentAddressInfo.delete();
+                        System.out.print("\nEnter your email: "); System.out.flush(); String email = scanner.nextLine();
+                        // Check if email exists
+                        if (PaymentAddressInfo.showRenterAddresses(email) == false) {
+                            System.out.println("\nNo addresses to delete.\n");
+                            continue;
+                        }
+                        // Check if there are credit cards associated to the address that must be deleted first
+                        if (PaymentAddressInfo.ccExists(email)) {
+                            System.out.println("\nYou must delete your credit cards before deleting you billing address.\n");
+                            continue;
+                        } 
+                        System.out.print("\nEnter the address you want to delete in the format (building number, state (Ex: IL), zip code, city, street): "); System.out.flush(); String addr = scanner.nextLine();
+                        String[] address = addr.split(",\\s+");
+                        PaymentAddressInfo.deleteAddress(email, address);
                     }
                 } else {
                     System.out.println(" - To add a credit card, enter (1)");
                     System.out.println(" - To modify a credit card, enter (2)");
-                    System.out.println(" - To delete a credit card, enter (3)");
+                    System.out.print(" - To delete a credit card, enter (3)\n: ");
                     Integer selection = scanner.nextInt(); scanner.nextLine(); // Check in case there is a problem here
-
+                    if (selection == 1) {
+                        PaymentAddressInfo.addCreditCard();
+                    } else if (selection == 2) {
+                        PaymentAddressInfo.modifyCreditCard();
+                    } else if (selection == 3) {
+                        PaymentAddressInfo.deleteCreditCard();
+                    }
                 }
             }
             else if (input == 0) {
