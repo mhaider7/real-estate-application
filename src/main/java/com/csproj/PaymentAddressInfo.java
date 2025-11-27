@@ -44,10 +44,10 @@ public class PaymentAddressInfo {
                     + "', '" + uEmail + "', '" + rset.getString("first_name") + "', '" + rset.getString("last_name") + "');";
             stmt.executeUpdate(addAdd);
             conn.commit();
+            System.out.println("Address added successfully.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        System.out.println("Address added successfully.");
     }
 
     public static void modifyAddress(String uEmail, String[] address, String[] uAddress) {
@@ -74,10 +74,10 @@ public class PaymentAddressInfo {
             //System.out.println("Connected to the database!");
             stmt.executeUpdate(updatedAddress);
             conn.commit();
+            System.out.println("Address modified successfully.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        System.out.println("Address modified successfully.");
     }
 
     public static void deleteAddress(String uEmail, String[] address) {
@@ -105,10 +105,10 @@ public class PaymentAddressInfo {
             //System.out.println("Connected to the database!");
             stmt.executeUpdate(deleteAddress);
             conn.commit();
+            System.out.println("Address deleted successfully.");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        System.out.println("Address deleted successfully.");
     }
 
     public static boolean showRenterAddresses(String uEmail) {
@@ -170,7 +170,7 @@ public class PaymentAddressInfo {
             //System.out.println("Connected to the database!");
             ResultSet rset = stmt.executeQuery(creditCards);
             if (rset.next()) {
-                System.out.println(rset.getString(1));
+                //System.out.println(rset.getString(1));
                 return true;
             } else {
                 return false;
@@ -181,15 +181,152 @@ public class PaymentAddressInfo {
         }
     }
 
-    public static void addCreditCard() {
-        System.out.println();
+    public static void addCreditCard(String uEmail, String aEmail, String ccNumber, String expDate, String ccv) {
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String url = props.getProperty("db.url");
+        String user = props.getProperty("db.user");
+        String password = props.getProperty("db.password");
+
+        String addCC = "INSERT INTO credit_card (email, renter_id, cc_number, exp_date, ccv) "
+                    + "SELECT email, renter_id, " + ccNumber + ", '" + expDate + "', " + ccv + " "
+                    + "FROM prospective_renter "
+                    + "WHERE email = '" + uEmail + "' AND agent_email = '" + aEmail + "';";
+        //System.out.println(addCC);
+
+        try (Connection conn = DriverManager.getConnection(url, user, password); Statement stmt = conn.createStatement();) {
+            conn.setAutoCommit(false);
+            //System.out.println("Connected to the database!");
+            stmt.executeUpdate(addCC);
+            conn.commit();
+            System.out.println("Credit card successfully added.");
+        } catch (Exception e) {
+            System.out.println("Failed to add credit card!");
+        }
     }
 
-    public static void modifyCreditCard() {
-        System.out.println();
+    public static void checkAgentEmail(String uEmail) {
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String url = props.getProperty("db.url");
+        String user = props.getProperty("db.user");
+        String password = props.getProperty("db.password");
+
+        String listAgents = "SELECT a.email, u.first_name, u.last_name "
+                + "FROM agent AS a, prospective_renter AS r, \"user\" AS u "
+                + "WHERE a.email = r.agent_email AND a.agent_id = r.agent_id AND a.email = u.email AND r.email = '" + uEmail + "';";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password); 
+                Statement stmt = conn.createStatement(); 
+                ResultSet rset = stmt.executeQuery(listAgents);) {
+            //System.out.println("Connected to the database!");
+            System.out.println("Here are all the agents you are listed under: ");
+            while (rset.next()) {
+                System.out.println("Name: " + rset.getString("last_name") + ", " + rset.getString("first_name"));
+                System.out.println("Email: " + rset.getString("email"));
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to list agents!");
+        }
     }
 
-    public static void deleteCreditCard() {
-        System.out.println();
+    public static void modifyCreditCard(String uEmail, String ccNumber, String newCCNumber, String expDate, String ccv) {
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String url = props.getProperty("db.url");
+        String user = props.getProperty("db.user");
+        String password = props.getProperty("db.password");
+
+        String updateCC = "UPDATE credit_card "
+                        + "SET cc_number = " + newCCNumber + ", exp_date = '" + expDate + "', ccv = " + ccv + " "
+                        + "WHERE email = '" + uEmail + "' AND cc_number = " + ccNumber + ";";
+        //System.out.println(updateCC);
+
+        try (Connection conn = DriverManager.getConnection(url, user, password); Statement stmt = conn.createStatement();) {
+            //System.out.println("Connected to the database!");
+            conn.setAutoCommit(false);
+            stmt.executeUpdate(updateCC);
+            conn.commit();
+            System.out.println("Credit card modification complete!");
+        } catch (Exception e) {
+            System.out.println("Failed to modify credit card!");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public static void listCC(String uEmail) {
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String url = props.getProperty("db.url");
+        String user = props.getProperty("db.user");
+        String password = props.getProperty("db.password");
+
+        String listCCInfo = "SELECT cc_number, exp_date "
+                + "FROM credit_card "
+                + "WHERE email = '" + uEmail + "';";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password); 
+                Statement stmt = conn.createStatement(); 
+                ResultSet rset = stmt.executeQuery(listCCInfo);) {
+            //System.out.println("Connected to the database!");
+            System.out.println("\nHere are all your credits cards: ");
+            while (rset.next()) {
+                System.out.println("Number: " + rset.getString("cc_number") + ", Expiration Date: " + rset.getString("exp_date"));
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to list credit cards!");
+        }
+    }
+
+    public static void deleteCreditCard(String uEmail, String ccNumber) {
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String url = props.getProperty("db.url");
+        String user = props.getProperty("db.user");
+        String password = props.getProperty("db.password");
+
+        String deleteCC = "DELETE FROM credit_card "
+                        + "WHERE email = '" + uEmail + "' AND cc_number = " + ccNumber + ";";
+
+        try (Connection conn = DriverManager.getConnection(url, user, password); Statement stmt = conn.createStatement();) {
+            //System.out.println("Connected to the database!");
+            conn.setAutoCommit(false);
+            stmt.executeUpdate(deleteCC);
+            conn.commit();
+            System.out.println("Credit card deleted.");
+        } catch (Exception e) {
+            System.out.println("Failed to delete credit card!");
+            System.out.println(e.getMessage());
+        }
     }
 }
