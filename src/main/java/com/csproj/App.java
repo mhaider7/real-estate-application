@@ -87,16 +87,36 @@ public class App
                         PaymentAddressInfo.deleteAddress(email, address);
                     }
                 } else {
-                    System.out.println(" - To add a credit card, enter (1)");
+                    System.out.println("\n - To add a credit card, enter (1)");
                     System.out.println(" - To modify a credit card, enter (2)");
                     System.out.print(" - To delete a credit card, enter (3)\n: ");
                     Integer selection = scanner.nextInt(); scanner.nextLine(); // Check in case there is a problem here
                     if (selection == 1) {
-                        PaymentAddressInfo.addCreditCard();
+                        System.out.print("\nEnter your email: "); System.out.flush(); String email = scanner.nextLine();
+                        // Check for the corresponding agent to get the correct renter ID
+                        PaymentAddressInfo.checkAgentEmail(email);
+                        System.out.print("\nEnter email of the agent you want this credit card under: "); String agentEmail = scanner.nextLine();
+                        System.out.print("Enter your credit card number: "); System.out.flush(); String ccNumber = scanner.nextLine();
+                        System.out.print("Enter your credit card expiration date in format (YEAR-MONTH-DAY): "); System.out.flush(); String expDate = scanner.nextLine();
+                        System.out.print("Enter your credit card ccv number: "); System.out.flush(); String ccv = scanner.nextLine();
+                        PaymentAddressInfo.addCreditCard(email, agentEmail, ccNumber, expDate, ccv);
                     } else if (selection == 2) {
-                        PaymentAddressInfo.modifyCreditCard();
+                        // Enter email
+                        System.out.print("\nEnter your email: "); System.out.flush(); String email = scanner.nextLine();
+                        // Show the cc number and the date attached to the email
+                        PaymentAddressInfo.listCC(email);
+                        System.out.print("\nEnter the number of the credit card you want to update: "); System.out.flush(); String ccNumber = scanner.nextLine();
+                        System.out.print("\nEnter the new credit card number: "); System.out.flush(); String newCCNumber = scanner.nextLine();
+                        System.out.print("Enter the new expiration date: "); System.out.flush(); String expDate = scanner.nextLine();
+                        System.out.print("Enter the new ccv number: "); System.out.flush(); String ccv = scanner.nextLine();
+                        // Select which cc to modify by ccnumber
+                        PaymentAddressInfo.modifyCreditCard(email, ccNumber, newCCNumber, expDate, ccv);
                     } else if (selection == 3) {
-                        PaymentAddressInfo.deleteCreditCard();
+                        System.out.print("\nEnter your email: "); System.out.flush(); String email = scanner.nextLine();
+                        // Show the cc numbers and the dates attached to the email
+                        PaymentAddressInfo.listCC(email);
+                        System.out.print("\nEnter the number of the credit card you want to delete: "); System.out.flush(); String ccNumber = scanner.nextLine();
+                        PaymentAddressInfo.deleteCreditCard(email, ccNumber);
                     }
                 }
             }
