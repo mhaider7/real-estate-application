@@ -12,7 +12,8 @@ public class Registration {
     public static void registerAgent(String uEmail, String firstName, String lastName, String jobTitle, String agency, String phoneNum, String[] address) {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -49,7 +50,8 @@ public class Registration {
     public static void registerRenter(String uEmail, String firstName, String lastName, String agentID, String agentEmail, String size, String maxRoom, String budget, String date, String [] address) {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -86,7 +88,8 @@ public class Registration {
     public static void agentOptions() {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {

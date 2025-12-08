@@ -10,6 +10,7 @@ public class App
             System.out.println("REAL ESTATE APPLICATION");
             System.out.println(" - As an agent or a renter, to register for an account, enter (1).");
             System.out.println(" - As an existing renter, to add, modify, or delete payment and address information, enter (2).");
+            System.out.println(" - To book a property, enter (3).");
             System.out.print(" - To exit, enter (0).\n: ");
             Scanner scanner = new Scanner(System.in);
             Integer input = scanner.nextInt();
@@ -119,6 +120,35 @@ public class App
                         PaymentAddressInfo.deleteCreditCard(email, ccNumber);
                     }
                 }
+            } else if (input == 3) {
+                System.out.println("\n--- Book a Property ---");
+
+                System.out.print("Enter your email: ");
+                System.out.flush();
+                String email = scanner.next();
+                scanner.nextLine();
+
+                // Show them their cards so they know which number to type
+                PaymentAddressInfo.listCC(email);
+
+                System.out.print("Enter the Credit Card Number to use: ");
+                System.out.flush();
+                String ccNumber = scanner.nextLine();
+
+                System.out.print("Enter Property ID to book: ");
+                System.out.flush();
+                int propId = scanner.nextInt();
+                scanner.nextLine();
+
+                System.out.print("Enter Start Date (YYYY-MM-DD): ");
+                System.out.flush();
+                String startDate = scanner.nextLine();
+
+                System.out.print("Enter End Date (YYYY-MM-DD): ");
+                System.out.flush();
+                String endDate = scanner.nextLine();
+
+                Booking.bookProperty(email, propId, startDate, endDate, ccNumber);
             }
             else if (input == 0) {
                 scanner.close();

@@ -15,7 +15,8 @@ public class PaymentAddressInfo {
         // Credentials to the db
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -54,7 +55,8 @@ public class PaymentAddressInfo {
         // Credentials to the db
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -84,7 +86,8 @@ public class PaymentAddressInfo {
         // Credentials to the db
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -114,7 +117,8 @@ public class PaymentAddressInfo {
     public static boolean showRenterAddresses(String uEmail) {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -153,7 +157,8 @@ public class PaymentAddressInfo {
     public static boolean ccExists(String uEmail) {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -184,7 +189,8 @@ public class PaymentAddressInfo {
     public static void addCreditCard(String uEmail, String aEmail, String ccNumber, String expDate, String ccv) {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -214,7 +220,8 @@ public class PaymentAddressInfo {
     public static void checkAgentEmail(String uEmail) {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -245,7 +252,8 @@ public class PaymentAddressInfo {
     public static void modifyCreditCard(String uEmail, String ccNumber, String newCCNumber, String expDate, String ccv) {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -275,7 +283,8 @@ public class PaymentAddressInfo {
     public static void listCC(String uEmail) {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -305,7 +314,8 @@ public class PaymentAddressInfo {
     public static void deleteCreditCard(String uEmail, String ccNumber) {
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            //props.load(new FileInputStream("/Users/maz/Desktop/CS425/real-estate-application/real-estate-app/src/main/java/com/csproj/dbproperties"));
+            props.load(new FileInputStream("src/main/java/com/csproj/dbproperties"));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
