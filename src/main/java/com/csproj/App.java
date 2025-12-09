@@ -11,6 +11,7 @@ public class App
             System.out.println(" - As an agent or a renter, to register for an account, enter (1).");
             System.out.println(" - As an existing renter, to add, modify, or delete payment and address information, enter (2).");
             System.out.println(" - To book a property, enter (3).");
+            System.out.println(" - To view/cancel your bookings, enter (4).");
             System.out.print(" - To exit, enter (0).\n: ");
             Scanner scanner = new Scanner(System.in);
             Integer input = scanner.nextInt();
@@ -149,8 +150,28 @@ public class App
                 String endDate = scanner.nextLine();
 
                 Booking.bookProperty(email, propId, startDate, endDate, ccNumber);
-            }
-            else if (input == 0) {
+            } else if (input == 4) {
+                System.out.print("Enter your email: ");
+                System.out.flush();
+                String email = scanner.next();
+                scanner.nextLine();
+
+                // Show Bookings
+                boolean hasBookings = Booking.viewRentersBookings(email);
+
+                // Offer Cancellation
+                if (hasBookings) {
+                    System.out.println("\nTo cancel a booking, enter the Booking ID. To go back, enter 0.");
+                    System.out.print(": ");
+                    System.out.flush();
+                    int choice = scanner.nextInt();
+                    scanner.nextLine();
+
+                    if (choice != 0) {
+                        Booking.cancelBooking(choice);
+                    }
+                }
+            } else if (input == 0) {
                 scanner.close();
                 System.exit(0);
             }
