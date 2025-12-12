@@ -12,6 +12,7 @@ public class App
             System.out.println(" - As an existing renter, to add, modify, or delete payment and address information, enter (2).");
             System.out.println(" - To book a property, enter (3).");
             System.out.println(" - To view/cancel your bookings, enter (4).");
+            System.out.println(" - Agents only - To view/modify your listings, enter (5).");
             System.out.print(" - To exit, enter (0).\n: ");
             Scanner scanner = new Scanner(System.in);
             Integer input = scanner.nextInt();
@@ -171,6 +172,35 @@ public class App
                         Booking.cancelBooking(choice);
                     }
                 }
+            } else if (input == 5) {
+                System.out.println("\n--- Listing Management (Agent Only) ---");
+                System.out.print("Enter agent email: ");
+                System.out.flush();
+                String agentEmail = scanner.next();
+                scanner.nextLine();
+
+                System.out.println(" - To create a new listing, enter (1)");
+                System.out.println(" - To modify your listing, enter (2)");
+                System.out.println(" - To delete your listing, enter (3)");
+                System.out.println(" - To view your listings, enter (4)");
+                System.out.print(": ");
+                Integer listChoice = scanner.nextInt();
+                scanner.nextLine();
+                
+                switch (listChoice) {
+                    case 1:
+                        Listings.createListing(agentEmail, scanner);
+                        break;
+                    case 2:
+                        Listings.modifyListing(agentEmail, scanner);
+                        break;
+                    case 3:
+                        Listings.deleteListing(agentEmail, scanner);
+                        break;
+                    case 4:
+                        Listings.viewAgentListings(agentEmail);
+                        break;
+                    } 
             } else if (input == 0) {
                 scanner.close();
                 System.exit(0);
