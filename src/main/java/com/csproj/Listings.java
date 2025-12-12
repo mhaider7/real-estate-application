@@ -71,7 +71,7 @@ public class Listings {
             return;
         }
         
-        System.out.println("\n--- Create New Listing (Agent Only) ---");
+        System.out.println("\n--- Create New Listing ---");
         
         // First, check if property exists or needs to be created
         System.out.println("\nDoes the property already exist in our system?");
@@ -421,4 +421,292 @@ public class Listings {
             }
         }
     } 
+
+    // Modify listing (Agent only - only their own listings)
+    public static void modifyListing(String agentEmail, Scanner scanner) {
+        if (!isAgent(agentEmail)) {
+            System.out.println("Access denied: Agent privileges required.");
+            return;
+        }
+        
+        System.out.println("\n--- Modify Your Listing (Agent Only) ---");
+        
+        System.out.print("Enter listing ID to modify: ");
+        int listingId = scanner.nextInt();
+        scanner.nextLine();
+        
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            if (conn == null) return;
+            
+            // Get current listing details (only if it belongs to this agent)
+            String currentQuery = "SELECT l.*, p.availability, p.price as base_price FROM listing l " +
+                    "JOIN property p ON l.property_id = p.property_id " +
+                    "WHERE l.listing_id = ? AND l.email = ?";
+            
+            PreparedStatement currentStmt = conn.prepareStatement(currentQuery);
+            currentStmt.setInt(1, listingId);
+            currentStmt.setString(2, agentEmail);
+            ResultSet rs = currentStmt.executeQuery();
+            
+            if (!rs.next()) {
+                System.out.println("Listing not found or you don't have permission to modify it.");
+                return;
+            }
+            
+            if (!rs.getBoolean("availability")) {
+                System.out.println("Cannot modify listing for unavailable property.");
+                return;
+            }
+            
+            System.out.println("\nCurrent Listing Details:");
+            System.out.println("Property ID: " + rs.getInt("property_id"));
+            System.out.println("Listing Price: $" + rs.getDouble("listing_price"));
+            System.out.println("Commission: " + rs.getDouble("commission_percent") + "%");
+            System.out.println("Final Price: $" + rs.getDouble("final_price"));
+            System.out.println("Property Base Price: $" + rs.getDouble("base_price"));
+            
+            System.out.println("\nEnter new values (press Enter to keep current value):");
+            
+            System.out.print("New listing price [$" + rs.getDouble("listing_price") + "]: ");
+            String newPriceStr = scanner.nextLine();
+            Double newListingPrice = newPriceStr.isEmpty() ? null : Double.parseDouble(newPriceStr);
+            
+            System.out.print("New commission percentage [" + rs.getDouble("commission_percent") + "%]: ");
+            String newCommissionStr = scanner.nextLine();
+            Double newCommission = newCommissionStr.isEmpty() ? null : Double.parseDouble(newCommissionStr);
+            
+            // Validate new listing price if provided
+            if (newListingPrice != null && newListingPrice < rs.getDouble("base_price")) {
+                System.out.println("Error: Listing price cannot be lower than property base price ($" + rs.getDouble("base_price") + ").");
+                return;
+            }
+            
+            // Calculate final price
+            Double newFinalPrice = null;
+            if (newListingPrice != null || newCommission != null) {
+                double listingPrice = newListingPrice != null ? newListingPrice : rs.getDouble("listing_price");
+                double commission = newCommission != null ? newCommission : rs.getDouble("commission_percent");
+                newFinalPrice = listingPrice * (1 + commission / 100);
+            }
+            
+            // Build update query
+            List<String> updates = new ArrayList<>();
+            List<Object> params = new ArrayList<>();
+            
+            if (newListingPrice != null) {
+                updates.add("listing_price = ?");
+                params.add(newListingPrice);
+            }
+            
+            if (newCommission != null) {
+                updates.add("commission_percent = ?");
+                params.add(newCommission);
+            }
+            
+            if (newFinalPrice != null) {
+                updates.add("final_price = ?");
+                params.add(newFinalPrice);
+            }
+            
+            if (!updates.isEmpty()) {
+                StringBuilder updateQuery = new StringBuilder("UPDATE listing SET ");
+                updateQuery.append(String.join(", ", updates));
+                updateQuery.append(" WHERE listing_id = ? AND email = ?");
+                params.add(listingId);
+                params.add(agentEmail);
+                
+                PreparedStatement updateStmt = conn.prepareStatement(updateQuery.toString());
+                for (int i = 0; i < params.size(); i++) {
+                    Object param = params.get(i);
+                    if (param instanceof Double) {
+                        updateStmt.setDouble(i + 1, (Double) param);
+                    } else if (param instanceof Integer) {
+                        updateStmt.setInt(i + 1, (Integer) param);
+                    } else if (param instanceof String) {
+                        updateStmt.setString(i + 1, (String) param);
+                    }
+                }
+                
+                int rows = updateStmt.executeUpdate();
+                if (rows > 0) {
+                    System.out.println("Listing updated successfully.");
+                    if (newFinalPrice != null) {
+                        System.out.println("New final price: $" + newFinalPrice);
+                    }
+                } else {
+                    System.out.println("Failed to update listing.");
+                }
+            } else {
+                System.out.println("No changes made.");
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Error modifying listing: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try { conn.close(); } catch (Exception e) {}
+            }
+        }
+    }
+    
+    // Delete listing (Agent only - only their own listings)
+    public static void deleteListing(String agentEmail, Scanner scanner) {
+        if (!isAgent(agentEmail)) {
+            System.out.println("Access denied: Agent privileges required.");
+            return;
+        }
+        
+        System.out.println("\n--- Delete Your Listing (Agent Only) ---");
+        
+        System.out.print("Enter listing ID to delete: ");
+        int listingId = scanner.nextInt();
+        scanner.nextLine();
+        
+        System.out.print("Are you sure? (yes/no): ");
+        String confirmation = scanner.nextLine();
+        
+        if (!confirmation.equalsIgnoreCase("yes")) {
+            System.out.println("Deletion cancelled.");
+            return;
+        }
+        
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            if (conn == null) return;
+            
+            // Check for active bookings on this listing's property
+            String bookingCheck = "SELECT COUNT(*) as booking_count FROM booking b " +
+                    "JOIN listing l ON b.property_id = l.property_id " +
+                    "WHERE l.listing_id = ? AND l.email = ? AND b.confirmation = true";
+            PreparedStatement bookingStmt = conn.prepareStatement(bookingCheck);
+            bookingStmt.setInt(1, listingId);
+            bookingStmt.setString(2, agentEmail);
+            ResultSet bookingRs = bookingStmt.executeQuery();
+            bookingRs.next();
+            
+            if (bookingRs.getInt("booking_count") > 0) {
+                System.out.println("Cannot delete listing with active bookings on its property.");
+                return;
+            }
+            
+            // Delete listing (only if it belongs to this agent)
+            String deleteQuery = "DELETE FROM listing WHERE listing_id = ? AND email = ?";
+            PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery);
+            deleteStmt.setInt(1, listingId);
+            deleteStmt.setString(2, agentEmail);
+            
+            int rows = deleteStmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Listing deleted successfully.");
+                
+                // Note: The property remains in the system for admins to manage
+                System.out.println("Note: The property remains in the database for admin management.");
+            } else {
+                System.out.println("Listing not found or you don't have permission to delete it.");
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Error deleting listing: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try { conn.close(); } catch (Exception e) {}
+            }
+        }
+    }
+
+    public static void viewAgentListings(String agentEmail) {
+        if (!isAgent(agentEmail)) {
+            System.out.println("Access denied: Agent privileges required.");
+            return;
+        }
+        
+        System.out.println("\n--- Your Listings ---");
+        
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            if (conn == null) return;
+            
+            // Get agent ID
+            String agentQuery = "SELECT agent_id FROM agent WHERE email = ?";
+            PreparedStatement agentStmt = conn.prepareStatement(agentQuery);
+            agentStmt.setString(1, agentEmail);
+            ResultSet agentRs = agentStmt.executeQuery();
+            
+            if (!agentRs.next()) {
+                System.out.println("Agent not found!");
+                return;
+            }
+            
+            int agentId = agentRs.getInt("agent_id");
+            
+            // Get agent's listings with property details
+            String listingsQuery = "SELECT l.listing_id, l.property_id, l.listing_price, l.commission_percent, l.final_price, " +
+                    "p.city, p.state, p.street, p.number, p.availability, p.sqr_footage, p.price as base_price, " +
+                    "CASE " +
+                    "  WHEN h.property_id IS NOT NULL THEN 'House' " +
+                    "  WHEN a.property_id IS NOT NULL THEN 'Apartment' " +
+                    "  WHEN c.property_id IS NOT NULL THEN 'Commercial' " +
+                    "  WHEN o.property_id IS NOT NULL THEN 'Other' " +
+                    "END as property_type " +
+                    "FROM listing l " +
+                    "JOIN property p ON l.property_id = p.property_id " +
+                    "LEFT JOIN house h ON p.property_id = h.property_id " +
+                    "LEFT JOIN apartment a ON p.property_id = a.property_id " +
+                    "LEFT JOIN commercial_building c ON p.property_id = c.property_id " +
+                    "LEFT JOIN other o ON p.property_id = o.property_id " +
+                    "WHERE l.email = ? AND l.agent_id = ? " +
+                    "ORDER BY l.listing_id";
+            
+            PreparedStatement listStmt = conn.prepareStatement(listingsQuery);
+            listStmt.setString(1, agentEmail);
+            listStmt.setInt(2, agentId);
+            ResultSet listRs = listStmt.executeQuery();
+            
+            System.out.println("\nYour Active Listings:");
+            boolean hasListings = false;
+            int listingCount = 0;
+            
+            while (listRs.next()) {
+                hasListings = true;
+                listingCount++;
+                
+                System.out.println("\nListing #" + listingCount);
+                System.out.println("Listing ID: " + listRs.getInt("listing_id"));
+                System.out.println("Property ID: " + listRs.getInt("property_id"));
+                System.out.println("Type: " + listRs.getString("property_type"));
+                System.out.println("Address: " + listRs.getInt("number") + " " + listRs.getString("street") + 
+                                 ", " + listRs.getString("city") + ", " + listRs.getString("state"));
+                System.out.println("Square Footage: " + listRs.getInt("sqr_footage"));
+                System.out.println("Property Base Price: $" + listRs.getDouble("base_price"));
+                System.out.println("Your Listing Price: $" + listRs.getDouble("listing_price"));
+                System.out.println("Your Commission: " + listRs.getDouble("commission_percent") + "%");
+                System.out.println("Final Price to Renter: $" + listRs.getDouble("final_price"));
+                System.out.println("Property Status: " + (listRs.getBoolean("availability") ? "Available" : "Not Available"));
+                
+                // Show booking count for this listing
+                String bookingQuery = "SELECT COUNT(*) as booking_count FROM booking " +
+                        "WHERE property_id = " + listRs.getInt("property_id") + 
+                        " AND confirmation = true";
+                Statement bookingStmt = conn.createStatement();
+                ResultSet bookingRs = bookingStmt.executeQuery(bookingQuery);
+                bookingRs.next();
+                System.out.println("Active Bookings: " + bookingRs.getInt("booking_count"));
+            }
+            
+            if (!hasListings) {
+                System.out.println("You have no active listings.");
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Error viewing listings: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try { conn.close(); } catch (Exception e) {}
+            }
+        }
+    }
 }
