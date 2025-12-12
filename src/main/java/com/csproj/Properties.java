@@ -206,4 +206,93 @@ public class Properties {
             }
         }
     }
+
+    // Direct database property deletion (Admin only)
+    public static void deleteProperty(String adminEmail, Scanner scanner) {
+        if (!isAdmin(adminEmail)) {
+            System.out.println("Access denied: Admin privileges required.");
+            return;
+        }
+        
+        System.out.println("\n--- Direct Property Deletion (Admin Only) ---");
+        System.out.println("WARNING: This will permanently delete the property and all related data!");
+        
+        System.out.print("Enter property ID to delete: ");
+        int propertyId = scanner.nextInt();
+        scanner.nextLine();
+        
+        System.out.print("Are you absolutely sure? This cannot be undone. (yes/no): ");
+        String confirmation = scanner.nextLine();
+        
+        if (!confirmation.equalsIgnoreCase("yes")) {
+            System.out.println("Deletion cancelled.");
+            return;
+        }
+        
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            if (conn == null) return;
+            
+            // First, check what we're deleting
+            String checkQuery = "SELECT p.*, " +
+                    "COUNT(DISTINCT l.listing_id) as listing_count, " +
+                    "COUNT(DISTINCT b.booking_id) as booking_count " +
+                    "FROM property p " +
+                    "LEFT JOIN listing l ON p.property_id = l.property_id " +
+                    "LEFT JOIN booking b ON p.property_id = b.property_id AND b.confirmation = true " +
+                    "WHERE p.property_id = ? " +
+                    "GROUP BY p.property_id";
+            
+            PreparedStatement checkStmt = conn.prepareStatement(checkQuery);
+            checkStmt.setInt(1, propertyId);
+            ResultSet rs = checkStmt.executeQuery();
+            
+            if (!rs.next()) {
+                System.out.println("Property not found.");
+                return;
+            }
+            
+            System.out.println("\nProperty to be deleted:");
+            System.out.println("ID: " + rs.getInt("property_id"));
+            System.out.println("Address: " + rs.getInt("number") + " " + rs.getString("street") + 
+                             ", " + rs.getString("city") + ", " + rs.getString("state"));
+            System.out.println("Active Listings: " + rs.getInt("listing_count"));
+            System.out.println("Active Bookings: " + rs.getInt("booking_count"));
+            
+            if (rs.getInt("booking_count") > 0) {
+                System.out.println("\nERROR: Cannot delete property with active bookings.");
+                System.out.println("Cancel all bookings first, then try again.");
+                return;
+            }
+            
+            System.out.print("\nFinal confirmation. Type 'DELETE' to proceed: ");
+            String finalConfirm = scanner.nextLine();
+            
+            if (!finalConfirm.equals("DELETE")) {
+                System.out.println("Deletion cancelled.");
+                return;
+            }
+            
+            // Delete property (cascade will handle related records)
+            String deleteQuery = "DELETE FROM property WHERE property_id = ?";
+            PreparedStatement deleteStmt = conn.prepareStatement(deleteQuery);
+            deleteStmt.setInt(1, propertyId);
+            
+            int rows = deleteStmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("\n✓ Property deleted successfully from database.");
+                System.out.println("Note: All associated listings, schools, and type data have been removed.");
+            } else {
+                System.out.println("Property deletion failed.");
+            }
+            
+        } catch (Exception e) {
+            System.out.println("Error deleting property: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try { conn.close(); } catch (Exception e) {}
+            }
+        }
+    }  
 }
