@@ -100,7 +100,7 @@ public class PaymentAddressInfo {
         // Create a view to get the users first and last name
         String deleteAddress = "DELETE FROM user_address "
                             + "WHERE email = '" +  uEmail + "' AND number = " + address[0] 
-                            + " AND state = '" + address[0] + "' AND zip_code = '" + address[2]
+                            + " AND state = '" + address[1] + "' AND zip_code = '" + address[2]
                             + "' AND city = '" + address[3] + "' AND street = '" + address[4] + "';";
 
         try (Connection conn = DriverManager.getConnection(url, user, password); Statement stmt = conn.createStatement();) {
